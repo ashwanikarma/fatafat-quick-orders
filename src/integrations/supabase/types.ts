@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          address: string | null
+          avatar_text: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          membership_tier: string
+          pan_number: string | null
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          avatar_text?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          membership_tier?: string
+          pan_number?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          avatar_text?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          membership_tier?: string
+          pan_number?: string | null
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
