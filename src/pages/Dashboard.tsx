@@ -99,14 +99,26 @@ const fadeUp = {
 const Dashboard = () => {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { listQuotations } = useQuotationPersistence(user?.id);
   const [quotations, setQuotations] = useState<QuotationRecord[]>([]);
 
-  useEffect(() => {
-    if (user?.id) {
-      listQuotations().then(setQuotations);
-    }
+  const loadQuotations = useCallback(() => {
+    if (user?.id) listQuotations().then(setQuotations);
   }, [user?.id, listQuotations]);
+
+  useEffect(() => { loadQuotations(); }, [loadQuotations]);
+
+  const handleDeleteQuotation = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const { error } = await supabase.from("quotations").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Error", description: "Failed to delete quotation", variant: "destructive" });
+    } else {
+      toast({ title: "Deleted", description: "Quotation removed successfully" });
+      loadQuotations();
+    }
+  };
 
   if (isLoading) {
     return (
