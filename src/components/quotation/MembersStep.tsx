@@ -177,21 +177,23 @@ const MembersStep = ({ members, sponsorNumber, onChange, onNext, onBack }: Membe
   return (
     <div className="space-y-6">
       <Card className="border-border">
-        <CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
-          <CardTitle className="font-heading text-xl">Members</CardTitle>
-          <div className="flex gap-2">
-            <Button variant="ghost" size="sm" onClick={handleDownloadTemplate}>
-              <Download className="mr-1.5 h-4 w-4" /> Template
-            </Button>
-            <label htmlFor="excel-upload">
-              <Button variant="outline" size="sm" asChild>
-                <span className="cursor-pointer"><Upload className="mr-1.5 h-4 w-4" /> Upload Excel</span>
+        <CardHeader className="pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <CardTitle className="font-heading text-xl">Members</CardTitle>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="ghost" size="sm" onClick={handleDownloadTemplate}>
+                <Download className="mr-1.5 h-4 w-4" /> <span className="hidden xs:inline">Template</span>
               </Button>
-            </label>
-            <input id="excel-upload" type="file" accept=".xlsx,.xls" className="hidden" onChange={handleExcelUpload} />
-            <Button size="sm" onClick={openAdd}>
-              <Plus className="mr-1.5 h-4 w-4" /> Add Member
-            </Button>
+              <label htmlFor="excel-upload">
+                <Button variant="outline" size="sm" asChild>
+                  <span className="cursor-pointer"><Upload className="mr-1.5 h-4 w-4" /> Upload</span>
+                </Button>
+              </label>
+              <input id="excel-upload" type="file" accept=".xlsx,.xls" className="hidden" onChange={handleExcelUpload} />
+              <Button size="sm" onClick={openAdd}>
+                <Plus className="mr-1.5 h-4 w-4" /> Add
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>

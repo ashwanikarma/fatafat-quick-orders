@@ -179,7 +179,7 @@ const Quotation = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 lg:px-8 max-w-4xl">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 lg:px-8 max-w-4xl">
         <StepIndicator currentStep={step} />
 
         {step === 0 && <SponsorStep data={sponsorData} onChange={setSponsorData} onNext={() => goToStep(1)} />}

@@ -137,8 +137,8 @@ const QuotationStep = ({ members, sponsorData, onBack, onNext }: QuotationStepPr
 
       <Separator />
 
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={onBack}>Back to Health Declaration</Button>
+      <div className="flex flex-col-reverse sm:flex-row justify-between gap-3">
+        <Button variant="outline" onClick={onBack}>Back</Button>
         <Button onClick={onNext}>Confirm &amp; Proceed</Button>
       </div>
     </div>

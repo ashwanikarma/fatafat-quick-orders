@@ -203,25 +203,23 @@ const HealthDeclarationStep = ({ members, onChange, onNext, onBack }: HealthDecl
             {members.map((m) => (
               <div
                 key={m.id}
-                className="flex items-center justify-between rounded-xl border border-border p-3 hover:bg-muted/50 transition-colors"
+                className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-xl border border-border p-3 hover:bg-muted/50 transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <div>
-                    <p className="text-sm font-medium text-foreground">{m.memberName}</p>
-                    <p className="text-xs text-muted-foreground">{m.memberType} · {m.classSelection}</p>
-                  </div>
+                <div>
+                  <p className="text-sm font-medium text-foreground">{m.memberName}</p>
+                  <p className="text-xs text-muted-foreground">{m.memberType} · {m.classSelection}</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 self-end sm:self-auto">
                   {m.healthDeclaration && (
                     <Badge variant={m.healthDeclaration === "No" ? "secondary" : "outline"} className={m.healthDeclaration === "Yes" ? "border-primary text-primary" : ""}>
                       {m.healthDeclaration === "No" ? "Healthy" : "Declared"}
                     </Badge>
                   )}
-                  <div className="flex gap-2">
+                  <div className="flex gap-1.5">
                     <Button
                       size="sm"
                       variant={m.healthDeclaration === "No" ? "default" : "outline"}
-                      className="h-7 text-xs px-3"
+                      className="h-7 text-xs px-2.5"
                       onClick={() => handleToggleDeclaration(m.id, "No")}
                     >
                       No
@@ -229,7 +227,7 @@ const HealthDeclarationStep = ({ members, onChange, onNext, onBack }: HealthDecl
                     <Button
                       size="sm"
                       variant={m.healthDeclaration === "Yes" ? "default" : "outline"}
-                      className="h-7 text-xs px-3"
+                      className="h-7 text-xs px-2.5"
                       onClick={() => handleToggleDeclaration(m.id, "Yes")}
                     >
                       Yes
