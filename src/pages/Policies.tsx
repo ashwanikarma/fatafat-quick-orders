@@ -76,9 +76,7 @@ const Policies = () => {
 
       <main className="container mx-auto px-4 py-8 lg:px-8 max-w-5xl">
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="h-6 w-6 animate-spin text-primary" />
-          </div>
+          <ListPageSkeleton count={3} />
         ) : policies.length === 0 ? (
           <motion.div {...fadeUp} className="text-center py-20">
             <Shield className="mx-auto h-16 w-16 text-muted-foreground/30 mb-4" />

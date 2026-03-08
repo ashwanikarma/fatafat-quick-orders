@@ -141,14 +141,7 @@ const Dashboard = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-section-alt">
-        <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card px-5 py-3 text-sm text-muted-foreground shadow-sm">
-          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          Loading your insurance workspace...
-        </div>
-      </div>
-    );
+    return <DashboardSkeleton />;
   }
 
   if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
