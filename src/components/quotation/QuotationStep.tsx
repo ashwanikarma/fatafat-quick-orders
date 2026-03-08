@@ -1,12 +1,12 @@
-import { useMemo, useRef } from "react";
+import { useMemo, useRef, useState } from "react";
 import { format } from "date-fns";
-import { Printer, Eye, FileText, Download } from "lucide-react";
+import { Printer, Eye, FileText, Download, ChevronDown, ChevronUp, Hospital, Ban, DollarSign } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { calculatePremium } from "@/lib/quotation-api";
-import type { Member, SponsorData } from "@/types/quotation";
+import type { Member, SponsorData, ClassSelection } from "@/types/quotation";
 
 interface QuotationStepProps {
   members: Member[];
