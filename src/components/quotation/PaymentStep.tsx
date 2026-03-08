@@ -19,6 +19,7 @@ interface PaymentStepProps {
   members: Member[];
   sponsorData: SponsorData;
   onBack: () => void;
+  onPaymentSuccess?: (policyNumber: string, totalPremium: number) => void;
 }
 
 const PaymentStep = ({ members, sponsorData, onBack }: PaymentStepProps) => {
