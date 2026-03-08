@@ -31,7 +31,7 @@ import { useQuotationPersistence, type QuotationRecord } from "@/hooks/useQuotat
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-const notifications = [
+const initialNotifications = [
   { id: 1, title: "Claim Approved", desc: "Your claim CLM-1023 for ₹45,000 has been approved.", time: "2 hours ago", read: false, icon: CheckCircle, tone: "text-primary" },
   { id: 2, title: "Payment Reminder", desc: "Health Shield Plus premium of ₹18,500 is due on 15 Mar.", time: "1 day ago", read: false, icon: CreditCard, tone: "text-accent-foreground" },
   { id: 3, title: "Claim Under Review", desc: "Claim CLM-1024 for Motor Protect is being reviewed.", time: "3 days ago", read: true, icon: Clock, tone: "text-muted-foreground" },
