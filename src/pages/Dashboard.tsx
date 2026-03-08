@@ -30,6 +30,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQuotationPersistence, type QuotationRecord } from "@/hooks/useQuotationPersistence";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { DashboardSkeleton } from "@/components/skeletons/PageSkeletons";
 
 const initialNotifications = [
   { id: 1, title: "Claim Approved", desc: "Your claim CLM-1023 for ₹45,000 has been approved.", time: "2 hours ago", read: false, icon: CheckCircle, tone: "text-primary" },
