@@ -96,6 +96,14 @@ const fadeUp = {
 const Dashboard = () => {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const navigate = useNavigate();
+  const { listQuotations } = useQuotationPersistence(user?.id);
+  const [quotations, setQuotations] = useState<QuotationRecord[]>([]);
+
+  useEffect(() => {
+    if (user?.id) {
+      listQuotations().then(setQuotations);
+    }
+  }, [user?.id, listQuotations]);
 
   if (isLoading) {
     return (
