@@ -41,6 +41,7 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/quotation" element={<Quotation />} />
             <Route path="/policies" element={<Policies />} />
+            <Route path="/policy" element={<PolicyDetail />} />
             <Route path="/quotations" element={<Quotations />} />
             <Route path="/install" element={<Install />} />
             <Route path="*" element={<NotFound />} />
