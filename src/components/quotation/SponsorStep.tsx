@@ -121,7 +121,7 @@ const SponsorStep = ({ data, onChange, onNext }: SponsorStepProps) => {
           {loading ? "Validating with Wathaq..." : "Next"}
         </Button>
       </div>
-    </>
+    </div>
   );
 };
 
