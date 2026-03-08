@@ -39,6 +39,7 @@ const App = () => (
             <Route path="/profile" element={<Profile />} />
             <Route path="/quotation" element={<Quotation />} />
             <Route path="/policies" element={<Policies />} />
+            <Route path="/install" element={<Install />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
