@@ -86,7 +86,7 @@ const PolicyDetail = () => {
     setLoading(true);
     const data = await loadQuotation(policyId);
     if (data) {
-      setPolicy({
+      const policyData: QuotationRecord = {
         id: policyId,
         user_id: user?.id || "",
         status: data.status,
@@ -99,7 +99,9 @@ const PolicyDetail = () => {
         policy_number: data.policyNumber || null,
         created_at: "",
         updated_at: "",
-      });
+      };
+      setPolicy(policyData);
+      setEndorsementHistory(generateEndorsementHistory(policyData, data.members || []));
     }
     setLoading(false);
   }, [policyId, loadQuotation, user?.id]);
@@ -119,9 +121,50 @@ const PolicyDetail = () => {
       policy.kyc_data, policy.status, newPremium, policy.quotation_id || undefined,
       policy.policy_number || undefined,
     );
+
+    // Determine what type of endorsement just happened
+    const oldMembers = (policy.members as Member[]) || [];
+    let newEntry: EndorsementHistoryItem;
+    const premiumDiff = newPremium - (policy.total_premium || 0);
+
+    if (updatedMembers.length > oldMembers.length) {
+      const addedCount = updatedMembers.length - oldMembers.length;
+      newEntry = {
+        id: `txn-${Date.now()}`,
+        type: "add_member",
+        description: `Added ${addedCount} new member${addedCount > 1 ? "s" : ""} to policy`,
+        date: new Date().toISOString(),
+        status: "approved",
+        premiumImpact: premiumDiff,
+        details: `Additional premium: SAR ${premiumDiff.toLocaleString()}. Payment processed.`,
+      };
+    } else if (updatedMembers.length < oldMembers.length) {
+      const removedCount = oldMembers.length - updatedMembers.length;
+      newEntry = {
+        id: `txn-${Date.now()}`,
+        type: "delete_member",
+        description: `Removed ${removedCount} member${removedCount > 1 ? "s" : ""} from policy`,
+        date: new Date().toISOString(),
+        status: "approved",
+        premiumImpact: premiumDiff,
+        details: `Refund amount: SAR ${Math.abs(premiumDiff).toLocaleString()}.`,
+      };
+    } else {
+      newEntry = {
+        id: `txn-${Date.now()}`,
+        type: "update_member",
+        description: "Updated member personal details",
+        date: new Date().toISOString(),
+        status: "approved",
+        premiumImpact: 0,
+        details: "Member details updated. No premium change.",
+      };
+    }
+
+    setEndorsementHistory((prev) => [newEntry, ...prev]);
     setPolicy({ ...policy, members: updatedMembers, total_premium: newPremium });
     setEndorsementView("none");
-    setActiveTab("members");
+    setActiveTab("endorsements");
     toast({ title: "Endorsement Applied", description: "Policy members have been updated successfully." });
   };
 
