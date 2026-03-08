@@ -371,9 +371,20 @@ const Dashboard = () => {
                       </div>
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>{memberCount} member{memberCount !== 1 ? "s" : ""}</span>
-                        <span className="flex items-center gap-1">
-                          Resume <ArrowRight className="h-3 w-3" />
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {q.status === "draft" && (
+                            <button
+                              onClick={(e) => handleDeleteQuotation(e, q.id)}
+                              className="flex items-center gap-1 text-destructive hover:text-destructive/80 transition-colors"
+                              title="Delete draft"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          )}
+                          <span className="flex items-center gap-1">
+                            {q.status === "draft" ? "Resume" : "View"} <ArrowRight className="h-3 w-3" />
+                          </span>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
