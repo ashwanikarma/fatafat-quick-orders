@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { Navigate, Link, useNavigate } from "react-router-dom";
 import {
@@ -19,12 +19,15 @@ import {
   Loader2,
   Plus,
   ArrowRight,
+  Trash2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuotationPersistence, type QuotationRecord } from "@/hooks/useQuotationPersistence";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
 
 const policies = [
   {
@@ -96,14 +99,26 @@ const fadeUp = {
 const Dashboard = () => {
   const { user, isAuthenticated, isLoading, logout } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const { listQuotations } = useQuotationPersistence(user?.id);
   const [quotations, setQuotations] = useState<QuotationRecord[]>([]);
 
-  useEffect(() => {
-    if (user?.id) {
-      listQuotations().then(setQuotations);
-    }
+  const loadQuotations = useCallback(() => {
+    if (user?.id) listQuotations().then(setQuotations);
   }, [user?.id, listQuotations]);
+
+  useEffect(() => { loadQuotations(); }, [loadQuotations]);
+
+  const handleDeleteQuotation = async (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const { error } = await supabase.from("quotations").delete().eq("id", id);
+    if (error) {
+      toast({ title: "Error", description: "Failed to delete quotation", variant: "destructive" });
+    } else {
+      toast({ title: "Deleted", description: "Quotation removed successfully" });
+      loadQuotations();
+    }
+  };
 
   if (isLoading) {
     return (
@@ -203,7 +218,7 @@ const Dashboard = () => {
         <motion.div {...fadeUp} transition={{ duration: 0.4, delay: 0.2 }}>
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-heading font-bold text-foreground">Your Policies</h2>
-            <Button variant="ghost" size="sm" className="gap-1 text-primary">
+            <Button variant="ghost" size="sm" className="gap-1 text-primary" onClick={() => navigate("/policies")}>
               View All <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
@@ -356,9 +371,20 @@ const Dashboard = () => {
                       </div>
                       <div className="flex items-center justify-between text-xs text-muted-foreground">
                         <span>{memberCount} member{memberCount !== 1 ? "s" : ""}</span>
-                        <span className="flex items-center gap-1">
-                          Resume <ArrowRight className="h-3 w-3" />
-                        </span>
+                        <div className="flex items-center gap-2">
+                          {q.status === "draft" && (
+                            <button
+                              onClick={(e) => handleDeleteQuotation(e, q.id)}
+                              className="flex items-center gap-1 text-destructive hover:text-destructive/80 transition-colors"
+                              title="Delete draft"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          )}
+                          <span className="flex items-center gap-1">
+                            {q.status === "draft" ? "Resume" : "View"} <ArrowRight className="h-3 w-3" />
+                          </span>
+                        </div>
                       </div>
                     </CardContent>
                   </Card>
