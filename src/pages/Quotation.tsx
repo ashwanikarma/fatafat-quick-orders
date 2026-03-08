@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Navigate, Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { Navigate, Link, useSearchParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Loader2, Save, CheckCircle2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuotationPersistence } from "@/hooks/useQuotationPersistence";
 import StepIndicator from "@/components/quotation/StepIndicator";
