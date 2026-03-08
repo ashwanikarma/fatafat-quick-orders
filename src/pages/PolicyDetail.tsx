@@ -23,6 +23,51 @@ import type { Member } from "@/types/quotation";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } };
 
+type EndorsementHistoryItem = {
+  id: string;
+  type: "add_member" | "update_member" | "delete_member" | "policy_issued";
+  description: string;
+  date: string;
+  status: "approved" | "pending" | "rejected";
+  premiumImpact?: number;
+  details?: string;
+};
+
+const getEndorsementIcon = (type: EndorsementHistoryItem["type"]) => {
+  switch (type) {
+    case "add_member": return <UserPlus className="h-4 w-4" />;
+    case "update_member": return <UserCog className="h-4 w-4" />;
+    case "delete_member": return <UserMinus className="h-4 w-4" />;
+    case "policy_issued": return <Shield className="h-4 w-4" />;
+  }
+};
+
+const getStatusBadge = (status: EndorsementHistoryItem["status"]) => {
+  switch (status) {
+    case "approved": return <Badge className="bg-primary/10 text-primary border-primary/20 gap-1"><CheckCircle2 className="h-3 w-3" /> Approved</Badge>;
+    case "pending": return <Badge variant="outline" className="gap-1 border-amber-500/30 text-amber-600"><Clock className="h-3 w-3" /> Pending</Badge>;
+    case "rejected": return <Badge variant="outline" className="gap-1 border-destructive/30 text-destructive"><XCircle className="h-3 w-3" /> Rejected</Badge>;
+  }
+};
+
+const generateEndorsementHistory = (policy: QuotationRecord, members: Member[]): EndorsementHistoryItem[] => {
+  const history: EndorsementHistoryItem[] = [];
+  const baseDate = policy.created_at ? new Date(policy.created_at) : new Date();
+
+  // Original policy issuance
+  history.push({
+    id: "txn-001",
+    type: "policy_issued",
+    description: `Policy issued with ${members.length} member${members.length !== 1 ? "s" : ""}`,
+    date: baseDate.toISOString(),
+    status: "approved",
+    premiumImpact: policy.total_premium || 0,
+    details: `Policy ${policy.policy_number || policy.quotation_id || ""} created. Total premium: SAR ${(policy.total_premium || 0).toLocaleString()}`,
+  });
+
+  return history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+};
+
 const PolicyDetail = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -34,6 +79,7 @@ const PolicyDetail = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const [endorsementView, setEndorsementView] = useState<"none" | "add" | "update" | "delete">("none");
+  const [endorsementHistory, setEndorsementHistory] = useState<EndorsementHistoryItem[]>([]);
 
   const load = useCallback(async () => {
     if (!policyId) return;
