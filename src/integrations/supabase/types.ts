@@ -50,6 +50,51 @@ export type Database = {
         }
         Relationships: []
       }
+      quotations: {
+        Row: {
+          created_at: string
+          current_step: number
+          id: string
+          kyc_data: Json
+          members: Json
+          policy_number: string | null
+          quotation_id: string | null
+          sponsor_data: Json
+          status: string
+          total_premium: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          current_step?: number
+          id?: string
+          kyc_data?: Json
+          members?: Json
+          policy_number?: string | null
+          quotation_id?: string | null
+          sponsor_data?: Json
+          status?: string
+          total_premium?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          current_step?: number
+          id?: string
+          kyc_data?: Json
+          members?: Json
+          policy_number?: string | null
+          quotation_id?: string | null
+          sponsor_data?: Json
+          status?: string
+          total_premium?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
