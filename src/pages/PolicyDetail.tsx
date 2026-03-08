@@ -3,7 +3,7 @@ import { motion } from "framer-motion";
 import { Navigate, Link, useNavigate, useSearchParams } from "react-router-dom";
 import {
   ArrowLeft, Shield, Users, Calendar, CreditCard, FileText, Download, UserPlus,
-  UserCog, UserMinus, ChevronRight, Loader2,
+  UserCog, UserMinus, ChevronRight, Loader2, History, Clock, CheckCircle2, XCircle, AlertCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -23,6 +23,51 @@ import type { Member } from "@/types/quotation";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } };
 
+type EndorsementHistoryItem = {
+  id: string;
+  type: "add_member" | "update_member" | "delete_member" | "policy_issued";
+  description: string;
+  date: string;
+  status: "approved" | "pending" | "rejected";
+  premiumImpact?: number;
+  details?: string;
+};
+
+const getEndorsementIcon = (type: EndorsementHistoryItem["type"]) => {
+  switch (type) {
+    case "add_member": return <UserPlus className="h-4 w-4" />;
+    case "update_member": return <UserCog className="h-4 w-4" />;
+    case "delete_member": return <UserMinus className="h-4 w-4" />;
+    case "policy_issued": return <Shield className="h-4 w-4" />;
+  }
+};
+
+const getStatusBadge = (status: EndorsementHistoryItem["status"]) => {
+  switch (status) {
+    case "approved": return <Badge className="bg-primary/10 text-primary border-primary/20 gap-1"><CheckCircle2 className="h-3 w-3" /> Approved</Badge>;
+    case "pending": return <Badge variant="outline" className="gap-1 border-amber-500/30 text-amber-600"><Clock className="h-3 w-3" /> Pending</Badge>;
+    case "rejected": return <Badge variant="outline" className="gap-1 border-destructive/30 text-destructive"><XCircle className="h-3 w-3" /> Rejected</Badge>;
+  }
+};
+
+const generateEndorsementHistory = (policy: QuotationRecord, members: Member[]): EndorsementHistoryItem[] => {
+  const history: EndorsementHistoryItem[] = [];
+  const baseDate = policy.created_at ? new Date(policy.created_at) : new Date();
+
+  // Original policy issuance
+  history.push({
+    id: "txn-001",
+    type: "policy_issued",
+    description: `Policy issued with ${members.length} member${members.length !== 1 ? "s" : ""}`,
+    date: baseDate.toISOString(),
+    status: "approved",
+    premiumImpact: policy.total_premium || 0,
+    details: `Policy ${policy.policy_number || policy.quotation_id || ""} created. Total premium: SAR ${(policy.total_premium || 0).toLocaleString()}`,
+  });
+
+  return history.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+};
+
 const PolicyDetail = () => {
   const { user, isAuthenticated, isLoading } = useAuth();
   const navigate = useNavigate();
@@ -34,13 +79,14 @@ const PolicyDetail = () => {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("overview");
   const [endorsementView, setEndorsementView] = useState<"none" | "add" | "update" | "delete">("none");
+  const [endorsementHistory, setEndorsementHistory] = useState<EndorsementHistoryItem[]>([]);
 
   const load = useCallback(async () => {
     if (!policyId) return;
     setLoading(true);
     const data = await loadQuotation(policyId);
     if (data) {
-      setPolicy({
+      const policyData: QuotationRecord = {
         id: policyId,
         user_id: user?.id || "",
         status: data.status,
@@ -53,7 +99,9 @@ const PolicyDetail = () => {
         policy_number: data.policyNumber || null,
         created_at: "",
         updated_at: "",
-      });
+      };
+      setPolicy(policyData);
+      setEndorsementHistory(generateEndorsementHistory(policyData, data.members || []));
     }
     setLoading(false);
   }, [policyId, loadQuotation, user?.id]);
@@ -73,9 +121,50 @@ const PolicyDetail = () => {
       policy.kyc_data, policy.status, newPremium, policy.quotation_id || undefined,
       policy.policy_number || undefined,
     );
+
+    // Determine what type of endorsement just happened
+    const oldMembers = (policy.members as Member[]) || [];
+    let newEntry: EndorsementHistoryItem;
+    const premiumDiff = newPremium - (policy.total_premium || 0);
+
+    if (updatedMembers.length > oldMembers.length) {
+      const addedCount = updatedMembers.length - oldMembers.length;
+      newEntry = {
+        id: `txn-${Date.now()}`,
+        type: "add_member",
+        description: `Added ${addedCount} new member${addedCount > 1 ? "s" : ""} to policy`,
+        date: new Date().toISOString(),
+        status: "approved",
+        premiumImpact: premiumDiff,
+        details: `Additional premium: SAR ${premiumDiff.toLocaleString()}. Payment processed.`,
+      };
+    } else if (updatedMembers.length < oldMembers.length) {
+      const removedCount = oldMembers.length - updatedMembers.length;
+      newEntry = {
+        id: `txn-${Date.now()}`,
+        type: "delete_member",
+        description: `Removed ${removedCount} member${removedCount > 1 ? "s" : ""} from policy`,
+        date: new Date().toISOString(),
+        status: "approved",
+        premiumImpact: premiumDiff,
+        details: `Refund amount: SAR ${Math.abs(premiumDiff).toLocaleString()}.`,
+      };
+    } else {
+      newEntry = {
+        id: `txn-${Date.now()}`,
+        type: "update_member",
+        description: "Updated member personal details",
+        date: new Date().toISOString(),
+        status: "approved",
+        premiumImpact: 0,
+        details: "Member details updated. No premium change.",
+      };
+    }
+
+    setEndorsementHistory((prev) => [newEntry, ...prev]);
     setPolicy({ ...policy, members: updatedMembers, total_premium: newPremium });
     setEndorsementView("none");
-    setActiveTab("members");
+    setActiveTab("endorsements");
     toast({ title: "Endorsement Applied", description: "Policy members have been updated successfully." });
   };
 
@@ -234,6 +323,9 @@ const PolicyDetail = () => {
                 <TabsList className="mb-4">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="members">Members ({members.length})</TabsTrigger>
+                  <TabsTrigger value="endorsements" className="gap-1.5">
+                    <History className="h-3.5 w-3.5" /> Endorsements ({endorsementHistory.length})
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview">
@@ -288,6 +380,63 @@ const PolicyDetail = () => {
                           </tfoot>
                         </table>
                       </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="endorsements">
+                  <Card className="border-border">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="font-heading text-base flex items-center gap-2">
+                        <History className="h-4 w-4 text-muted-foreground" /> Transaction History
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">All endorsements and transactions on this policy.</p>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      {endorsementHistory.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted mb-3">
+                            <History className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                          <p className="text-sm font-semibold text-foreground">No transactions yet</p>
+                          <p className="text-xs text-muted-foreground mt-1">Endorsements will appear here once processed.</p>
+                        </div>
+                      ) : (
+                        <div className="divide-y divide-border">
+                          {endorsementHistory.map((entry) => (
+                            <div key={entry.id} className="flex items-start gap-4 px-6 py-4 hover:bg-muted/30 transition-colors">
+                              <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl ${
+                                entry.type === "add_member" ? "bg-primary/10 text-primary" :
+                                entry.type === "delete_member" ? "bg-destructive/10 text-destructive" :
+                                entry.type === "update_member" ? "bg-secondary text-secondary-foreground" :
+                                "bg-primary/10 text-primary"
+                              }`}>
+                                {getEndorsementIcon(entry.type)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2 mb-1">
+                                  <p className="text-sm font-semibold text-foreground truncate">{entry.description}</p>
+                                  {getStatusBadge(entry.status)}
+                                </div>
+                                {entry.details && (
+                                  <p className="text-xs text-muted-foreground mb-1.5">{entry.details}</p>
+                                )}
+                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="h-3 w-3" />
+                                    {new Date(entry.date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                                  </span>
+                                  {entry.premiumImpact !== undefined && entry.premiumImpact !== 0 && (
+                                    <span className={`font-semibold ${entry.premiumImpact > 0 ? "text-destructive" : "text-primary"}`}>
+                                      {entry.premiumImpact > 0 ? "+" : ""}SAR {entry.premiumImpact.toLocaleString()}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
