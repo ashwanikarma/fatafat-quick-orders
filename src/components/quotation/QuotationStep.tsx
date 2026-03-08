@@ -31,12 +31,12 @@ const QuotationStep = ({ members, sponsorData, onBack, onNext }: QuotationStepPr
       {/* Summary Card */}
       <Card className="border-primary/20">
         <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
               <CardTitle className="font-heading text-xl">Quotation Summary</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">Quotation ID: {quotationId}</p>
             </div>
-            <Badge className="bg-primary/10 text-primary border-primary/20 text-base px-4 py-1.5">
+            <Badge className="bg-primary/10 text-primary border-primary/20 text-base px-4 py-1.5 self-start sm:self-auto">
               SAR {totalPremium.toLocaleString()}
             </Badge>
           </div>
