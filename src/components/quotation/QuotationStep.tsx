@@ -27,7 +27,7 @@ const QuotationStep = ({ members, sponsorData, onBack, onNext }: QuotationStepPr
   };
 
   return (
-    <div className="space-y-6" ref={printRef}>
+    <div className="space-y-6 pb-20 sm:pb-0" ref={printRef}>
       {/* Summary Card */}
       <Card className="border-primary/20">
         <CardHeader className="pb-3">
