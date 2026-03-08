@@ -33,6 +33,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import OtpVerificationForm from "@/components/auth/OtpVerificationForm";
 import { newPasswordSchema, otpSchema, profileSchema } from "@/lib/auth-schemas";
+import { ProfileSkeleton } from "@/components/skeletons/PageSkeletons";
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
