@@ -31,7 +31,7 @@ import { useQuotationPersistence, type QuotationRecord } from "@/hooks/useQuotat
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 
-const notifications = [
+const initialNotifications = [
   { id: 1, title: "Claim Approved", desc: "Your claim CLM-1023 for ₹45,000 has been approved.", time: "2 hours ago", read: false, icon: CheckCircle, tone: "text-primary" },
   { id: 2, title: "Payment Reminder", desc: "Health Shield Plus premium of ₹18,500 is due on 15 Mar.", time: "1 day ago", read: false, icon: CreditCard, tone: "text-accent-foreground" },
   { id: 3, title: "Claim Under Review", desc: "Claim CLM-1024 for Motor Protect is being reviewed.", time: "3 days ago", read: true, icon: Clock, tone: "text-muted-foreground" },
@@ -111,6 +111,16 @@ const Dashboard = () => {
   const { toast } = useToast();
   const { listQuotations } = useQuotationPersistence(user?.id);
   const [quotations, setQuotations] = useState<QuotationRecord[]>([]);
+  const [notifications, setNotifications] = useState(initialNotifications);
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const markAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  const markOneRead = (id: number) => {
+    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
+  };
 
   const loadQuotations = useCallback(() => {
     if (user?.id) listQuotations().then(setQuotations);
@@ -163,7 +173,7 @@ const Dashboard = () => {
               <PopoverTrigger asChild>
                 <Button variant="ghost" size="icon" className="relative">
                   <Bell className="h-5 w-5" />
-                  {notifications.some((n) => !n.read) && (
+                  {unreadCount > 0 && (
                     <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
                   )}
                 </Button>
@@ -171,12 +181,18 @@ const Dashboard = () => {
               <PopoverContent align="end" className="w-80 p-0">
                 <div className="flex items-center justify-between px-4 py-3">
                   <p className="text-sm font-heading font-semibold text-foreground">Notifications</p>
-                  <Badge variant="outline" className="text-xs">{notifications.filter((n) => !n.read).length} new</Badge>
+                  {unreadCount > 0 && (
+                    <Badge variant="outline" className="text-xs">{unreadCount} new</Badge>
+                  )}
                 </div>
                 <Separator />
                 <div className="max-h-80 overflow-y-auto">
                   {notifications.map((n) => (
-                    <div key={n.id} className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted ${!n.read ? "bg-primary/5" : ""}`}>
+                    <div
+                      key={n.id}
+                      className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted cursor-pointer ${!n.read ? "bg-primary/5" : ""}`}
+                      onClick={() => markOneRead(n.id)}
+                    >
                       <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-card ${n.tone}`}>
                         <n.icon className="h-4 w-4" />
                       </div>
@@ -191,8 +207,14 @@ const Dashboard = () => {
                 </div>
                 <Separator />
                 <div className="px-4 py-2">
-                  <Button variant="ghost" size="sm" className="w-full text-xs text-primary">
-                    Mark all as read
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="w-full text-xs text-primary"
+                    onClick={markAllRead}
+                    disabled={unreadCount === 0}
+                  >
+                    {unreadCount === 0 ? "All caught up!" : "Mark all as read"}
                   </Button>
                 </div>
               </PopoverContent>
