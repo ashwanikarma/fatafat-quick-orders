@@ -68,6 +68,7 @@ const PaymentStep = ({ members, sponsorData, onBack, onPaymentSuccess }: Payment
     if (success) {
       setPaymentState("success");
       toast({ title: "Payment Successful", description: `Policy ${policyNumber} has been issued.` });
+      onPaymentSuccess?.(policyNumber, totalPremium);
     } else {
       setPaymentState("failed");
       toast({ title: "Payment Failed", description: "Please try again or use a different card.", variant: "destructive" });
