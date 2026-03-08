@@ -111,6 +111,16 @@ const Dashboard = () => {
   const { toast } = useToast();
   const { listQuotations } = useQuotationPersistence(user?.id);
   const [quotations, setQuotations] = useState<QuotationRecord[]>([]);
+  const [notifications, setNotifications] = useState(initialNotifications);
+  const unreadCount = notifications.filter((n) => !n.read).length;
+
+  const markAllRead = () => {
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  };
+
+  const markOneRead = (id: number) => {
+    setNotifications((prev) => prev.map((n) => n.id === id ? { ...n, read: true } : n));
+  };
 
   const loadQuotations = useCallback(() => {
     if (user?.id) listQuotations().then(setQuotations);
