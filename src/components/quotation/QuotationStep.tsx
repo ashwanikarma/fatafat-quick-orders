@@ -15,7 +15,7 @@ interface QuotationStepProps {
   onNext?: () => void;
 }
 
-const QuotationStep = ({ members, sponsorData, onBack }: QuotationStepProps) => {
+const QuotationStep = ({ members, sponsorData, onBack, onNext }: QuotationStepProps) => {
   const printRef = useRef<HTMLDivElement>(null);
 
   const premiums = useMemo(() => calculatePremium(members), [members]);
