@@ -9,7 +9,7 @@ interface StepIndicatorProps {
 
 const StepIndicator = ({ currentStep }: StepIndicatorProps) => {
   return (
-    <div className="flex items-center justify-center gap-0 mb-8">
+    <div className="flex items-center justify-center gap-0 mb-8 overflow-x-auto px-2">
       {steps.map((label, i) => {
         const isCompleted = i < currentStep;
         const isCurrent = i === currentStep;
