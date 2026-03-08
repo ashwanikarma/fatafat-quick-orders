@@ -35,6 +35,9 @@ const Quotation = () => {
   const { quotationId, isSaving, createDraft, saveState, debouncedSave, loadQuotation, setQuotationId } =
     useQuotationPersistence(user?.id);
 
+  const [isPaidPolicy, setIsPaidPolicy] = useState(false);
+  const [policyNumber, setPolicyNumber] = useState<string | null>(null);
+
   // Initialize: load existing or create new draft
   useEffect(() => {
     if (!user || isInitialized) return;
@@ -42,6 +45,17 @@ const Quotation = () => {
       if (resumeId) {
         const loaded = await loadQuotation(resumeId);
         if (loaded) {
+          // If already paid, mark as read-only
+          if (loaded.status === "paid" || loaded.status === "completed") {
+            setIsPaidPolicy(true);
+            setPolicyNumber(loaded.policyNumber || null);
+            setSponsorData(loaded.sponsorData);
+            setMembers(loaded.members);
+            setKycData(loaded.kycData);
+            setStep(loaded.currentStep);
+            setIsInitialized(true);
+            return;
+          }
           setStep(loaded.currentStep);
           setSponsorData(loaded.sponsorData);
           setMembers(loaded.members);

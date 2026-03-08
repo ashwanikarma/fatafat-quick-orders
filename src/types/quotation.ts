@@ -23,6 +23,11 @@ export interface Member {
   employeeId?: string;
   healthDeclaration?: "Yes" | "No";
   healthAnswers?: boolean[];
+  heightCm?: string;
+  weightKg?: string;
+  isPregnant?: boolean;
+  expectedDeliveryDate?: string;
+  maternityDays?: string;
 }
 
 export interface QuotationSummary {
