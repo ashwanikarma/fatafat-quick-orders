@@ -56,7 +56,7 @@ const SponsorStep = ({ data, onChange, onNext }: SponsorStepProps) => {
   };
 
   return (
-    <>
+    <div className="pb-20 sm:pb-0">
       <Card className="border-border max-w-lg mx-auto">
         <CardHeader>
           <CardTitle className="font-heading text-xl">Sponsor Details</CardTitle>
@@ -121,7 +121,7 @@ const SponsorStep = ({ data, onChange, onNext }: SponsorStepProps) => {
           {loading ? "Validating with Wathaq..." : "Next"}
         </Button>
       </div>
-    </>
+    </div>
   );
 };
 

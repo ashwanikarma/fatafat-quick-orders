@@ -79,7 +79,7 @@ const PaymentStep = ({ members, sponsorData, onBack, onPaymentSuccess }: Payment
 
   if (paymentState === "success") {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 pb-20 sm:pb-0">
         <Card className="border-primary/30 bg-primary/5">
           <CardContent className="py-10 text-center space-y-4">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
@@ -165,7 +165,7 @@ const PaymentStep = ({ members, sponsorData, onBack, onPaymentSuccess }: Payment
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 sm:pb-0">
       {/* Payment Summary */}
       <Card className="border-primary/20">
         <CardContent className="py-5">

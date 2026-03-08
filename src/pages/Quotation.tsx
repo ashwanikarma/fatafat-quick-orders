@@ -180,7 +180,7 @@ const Quotation = () => {
       </header>
 
       <main
-        className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 lg:px-8 max-w-4xl pb-20 sm:pb-8"
+        className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 lg:px-8 max-w-4xl pb-24 sm:pb-8"
         onTouchStart={(e) => {
           const touch = e.touches[0];
           (e.currentTarget as any)._swipeX = touch.clientX;

@@ -162,7 +162,7 @@ const KYCStep = ({ kycData, onChange, onNext, onBack }: KYCStepProps) => {
     errors[field] ? <p className="text-xs text-destructive mt-1 flex items-center gap-1"><AlertCircle className="h-3 w-3" />{errors[field]}</p> : null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 pb-20 sm:pb-0">
       {/* Section 1: National Address */}
       <Card className="border-border">
         <CardHeader className="pb-3">
