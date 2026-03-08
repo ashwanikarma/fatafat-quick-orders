@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useQuotationPersistence, type QuotationRecord } from "@/hooks/useQuotationPersistence";
 import { useToast } from "@/hooks/use-toast";
 import { downloadDocument } from "@/lib/download-document";
+import { ListPageSkeleton } from "@/components/skeletons/PageSkeletons";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } };
 
