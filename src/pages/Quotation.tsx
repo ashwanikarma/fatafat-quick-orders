@@ -1,8 +1,10 @@
-import { useState } from "react";
-import { Navigate, Link } from "react-router-dom";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { useState, useEffect, useCallback, useMemo } from "react";
+import { Navigate, Link, useSearchParams } from "react-router-dom";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQuotationPersistence } from "@/hooks/useQuotationPersistence";
 import StepIndicator from "@/components/quotation/StepIndicator";
 import SponsorStep from "@/components/quotation/SponsorStep";
 import MembersStep from "@/components/quotation/MembersStep";
@@ -20,13 +22,59 @@ const emptyKYC: KYCData = {
 };
 
 const Quotation = () => {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
+  const [searchParams] = useSearchParams();
+  const resumeId = searchParams.get("id");
+
   const [step, setStep] = useState(0);
   const [sponsorData, setSponsorData] = useState<SponsorData>({ sponsorNumber: "", policyEffectiveDate: undefined });
   const [members, setMembers] = useState<Member[]>([]);
   const [kycData, setKycData] = useState<KYCData>(emptyKYC);
+  const [isInitialized, setIsInitialized] = useState(false);
 
-  if (isLoading) {
+  const { quotationId, isSaving, createDraft, saveState, debouncedSave, loadQuotation, setQuotationId } =
+    useQuotationPersistence(user?.id);
+
+  // Initialize: load existing or create new draft
+  useEffect(() => {
+    if (!user || isInitialized) return;
+    const init = async () => {
+      if (resumeId) {
+        const loaded = await loadQuotation(resumeId);
+        if (loaded) {
+          setStep(loaded.currentStep);
+          setSponsorData(loaded.sponsorData);
+          setMembers(loaded.members);
+          setKycData(loaded.kycData);
+          setIsInitialized(true);
+          return;
+        }
+      }
+      // Create new draft
+      await createDraft();
+      setIsInitialized(true);
+    };
+    init();
+  }, [user, resumeId, isInitialized, loadQuotation, createDraft]);
+
+  // Auto-save on state changes
+  useEffect(() => {
+    if (!quotationId || !isInitialized) return;
+    debouncedSave(quotationId, step, sponsorData, members, kycData);
+  }, [quotationId, step, sponsorData, members, kycData, isInitialized, debouncedSave]);
+
+  // Step change with immediate save
+  const goToStep = useCallback(
+    (nextStep: number) => {
+      setStep(nextStep);
+      if (quotationId) {
+        saveState(quotationId, nextStep, sponsorData, members, kycData);
+      }
+    },
+    [quotationId, sponsorData, members, kycData, saveState],
+  );
+
+  if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-section-alt">
         <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card px-5 py-3 text-sm text-muted-foreground shadow-sm">
@@ -37,6 +85,16 @@ const Quotation = () => {
   }
 
   if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
+
+  if (!isInitialized) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-section-alt">
+        <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card px-5 py-3 text-sm text-muted-foreground shadow-sm">
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />Loading quotation...
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-section-alt">
@@ -51,7 +109,12 @@ const Quotation = () => {
               <p className="text-xs text-muted-foreground">Health Insurance — Quotation Module</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
+            {isSaving && (
+              <Badge variant="outline" className="gap-1.5 text-xs text-muted-foreground">
+                <Save className="h-3 w-3 animate-pulse" /> Saving...
+              </Badge>
+            )}
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
               {user.avatar}
             </div>
@@ -62,12 +125,12 @@ const Quotation = () => {
       <main className="container mx-auto px-4 py-8 lg:px-8 max-w-4xl">
         <StepIndicator currentStep={step} />
 
-        {step === 0 && <SponsorStep data={sponsorData} onChange={setSponsorData} onNext={() => setStep(1)} />}
-        {step === 1 && <MembersStep members={members} sponsorNumber={sponsorData.sponsorNumber} onChange={setMembers} onNext={() => setStep(2)} onBack={() => setStep(0)} />}
-        {step === 2 && <HealthDeclarationStep members={members} onChange={setMembers} onNext={() => setStep(3)} onBack={() => setStep(1)} />}
-        {step === 3 && <QuotationStep members={members} sponsorData={sponsorData} onBack={() => setStep(2)} onNext={() => setStep(4)} />}
-        {step === 4 && <KYCStep kycData={kycData} onChange={setKycData} onNext={() => setStep(5)} onBack={() => setStep(3)} />}
-        {step === 5 && <PaymentStep members={members} sponsorData={sponsorData} onBack={() => setStep(4)} />}
+        {step === 0 && <SponsorStep data={sponsorData} onChange={setSponsorData} onNext={() => goToStep(1)} />}
+        {step === 1 && <MembersStep members={members} sponsorNumber={sponsorData.sponsorNumber} onChange={setMembers} onNext={() => goToStep(2)} onBack={() => goToStep(0)} />}
+        {step === 2 && <HealthDeclarationStep members={members} onChange={setMembers} onNext={() => goToStep(3)} onBack={() => goToStep(1)} />}
+        {step === 3 && <QuotationStep members={members} sponsorData={sponsorData} onBack={() => goToStep(2)} onNext={() => goToStep(4)} />}
+        {step === 4 && <KYCStep kycData={kycData} onChange={setKycData} onNext={() => goToStep(5)} onBack={() => goToStep(3)} />}
+        {step === 5 && <PaymentStep members={members} sponsorData={sponsorData} onBack={() => goToStep(4)} />}
       </main>
     </div>
   );
