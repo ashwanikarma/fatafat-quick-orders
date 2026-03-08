@@ -187,14 +187,16 @@ const HealthDeclarationStep = ({ members, onChange, onNext, onBack }: HealthDecl
 
       {/* Health Declaration */}
       <Card className="border-border">
-        <CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
-          <div>
-            <CardTitle className="font-heading text-xl">Health Declaration</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">Declare health status for each member per CCHI standards.</p>
+        <CardHeader className="pb-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div>
+              <CardTitle className="font-heading text-xl">Health Declaration</CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">Declare health status for each member per CCHI standards.</p>
+            </div>
+            <Button variant="outline" size="sm" className="self-start sm:self-auto" onClick={handleDeclareAllNo}>
+              Declare All "No"
+            </Button>
           </div>
-          <Button variant="outline" size="sm" onClick={handleDeclareAllNo}>
-            Declare All "No"
-          </Button>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
