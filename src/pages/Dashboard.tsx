@@ -388,7 +388,6 @@ const Dashboard = () => {
                   <Plus className="h-4 w-4" /> New
                 </Button>
               </div>
-              </Button>
             </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
               {quotations.slice(0, 6).map((q) => {
