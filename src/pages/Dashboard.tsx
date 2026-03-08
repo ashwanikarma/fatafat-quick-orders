@@ -317,6 +317,57 @@ const Dashboard = () => {
           </motion.div>
         </div>
 
+        {/* Saved Quotations */}
+        {quotations.length > 0 && (
+          <motion.div {...fadeUp} transition={{ duration: 0.4, delay: 0.38 }}>
+            <div className="mb-4 flex items-center justify-between">
+              <h2 className="text-lg font-heading font-bold text-foreground">Your Quotations</h2>
+              <Button variant="ghost" size="sm" className="gap-1 text-primary" onClick={() => navigate("/quotation")}>
+                <Plus className="h-4 w-4" /> New Quotation
+              </Button>
+            </div>
+            <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
+              {quotations.slice(0, 6).map((q) => {
+                const stepLabels = ["Sponsor", "Members", "Health", "Quotation", "KYC", "Payment"];
+                const sponsor = q.sponsor_data as any;
+                const memberCount = Array.isArray(q.members) ? q.members.length : 0;
+                const statusColor = q.status === "completed" ? "bg-primary/10 text-primary border-primary/20"
+                  : q.status === "paid" ? "bg-primary/10 text-primary border-primary/20"
+                  : "bg-muted text-muted-foreground border-border";
+                return (
+                  <Card
+                    key={q.id}
+                    className="group cursor-pointer border-border transition-all hover:border-primary/30 hover:shadow-md"
+                    onClick={() => navigate(`/quotation?id=${q.id}`)}
+                  >
+                    <CardContent className="p-5">
+                      <div className="flex items-start justify-between mb-3">
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">
+                            {sponsor?.sponsorName || sponsor?.sponsorNumber || "Draft Quotation"}
+                          </p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {q.quotation_id || `Step: ${stepLabels[q.current_step] || "Sponsor"}`}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className={`text-xs ${statusColor}`}>
+                          {q.status === "draft" ? "In Progress" : q.status}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between text-xs text-muted-foreground">
+                        <span>{memberCount} member{memberCount !== 1 ? "s" : ""}</span>
+                        <span className="flex items-center gap-1">
+                          Resume <ArrowRight className="h-3 w-3" />
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+
         <motion.div {...fadeUp} transition={{ duration: 0.4, delay: 0.4 }}>
           <h2 className="mb-4 text-lg font-heading font-bold text-foreground">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
