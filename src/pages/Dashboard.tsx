@@ -24,10 +24,19 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuotationPersistence, type QuotationRecord } from "@/hooks/useQuotationPersistence";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+
+const notifications = [
+  { id: 1, title: "Claim Approved", desc: "Your claim CLM-1023 for ₹45,000 has been approved.", time: "2 hours ago", read: false, icon: CheckCircle, tone: "text-primary" },
+  { id: 2, title: "Payment Reminder", desc: "Health Shield Plus premium of ₹18,500 is due on 15 Mar.", time: "1 day ago", read: false, icon: CreditCard, tone: "text-accent-foreground" },
+  { id: 3, title: "Claim Under Review", desc: "Claim CLM-1024 for Motor Protect is being reviewed.", time: "3 days ago", read: true, icon: Clock, tone: "text-muted-foreground" },
+  { id: 4, title: "Policy Renewed", desc: "Life Secure 360 has been renewed successfully.", time: "1 week ago", read: true, icon: CheckCircle, tone: "text-primary" },
+];
 
 const policies = [
   {
@@ -150,10 +159,44 @@ const Dashboard = () => {
             <span className="text-xl font-heading font-bold tracking-tight text-foreground">FataFat</span>
           </Link>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="icon" className="relative">
-              <Bell className="h-5 w-5" />
-              <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <Bell className="h-5 w-5" />
+                  {notifications.some((n) => !n.read) && (
+                    <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-primary" />
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent align="end" className="w-80 p-0">
+                <div className="flex items-center justify-between px-4 py-3">
+                  <p className="text-sm font-heading font-semibold text-foreground">Notifications</p>
+                  <Badge variant="outline" className="text-xs">{notifications.filter((n) => !n.read).length} new</Badge>
+                </div>
+                <Separator />
+                <div className="max-h-80 overflow-y-auto">
+                  {notifications.map((n) => (
+                    <div key={n.id} className={`flex items-start gap-3 px-4 py-3 transition-colors hover:bg-muted ${!n.read ? "bg-primary/5" : ""}`}>
+                      <div className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-card ${n.tone}`}>
+                        <n.icon className="h-4 w-4" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-foreground">{n.title}</p>
+                        <p className="text-xs text-muted-foreground line-clamp-2">{n.desc}</p>
+                        <p className="mt-1 text-xs text-muted-foreground/70">{n.time}</p>
+                      </div>
+                      {!n.read && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-primary" />}
+                    </div>
+                  ))}
+                </div>
+                <Separator />
+                <div className="px-4 py-2">
+                  <Button variant="ghost" size="sm" className="w-full text-xs text-primary">
+                    Mark all as read
+                  </Button>
+                </div>
+              </PopoverContent>
+            </Popover>
             <Link to="/profile">
               <Button variant="ghost" size="sm" className="gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
