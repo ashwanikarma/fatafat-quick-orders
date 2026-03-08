@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Navigate, Link, useNavigate } from "react-router-dom";
 import {
@@ -16,11 +17,14 @@ import {
   Activity,
   Heart,
   Loader2,
+  Plus,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/contexts/AuthContext";
+import { useQuotationPersistence, type QuotationRecord } from "@/hooks/useQuotationPersistence";
 
 const policies = [
   {
