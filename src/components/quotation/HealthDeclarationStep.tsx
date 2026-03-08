@@ -284,10 +284,18 @@ const HealthDeclarationStep = ({ members, onChange, onNext, onBack }: HealthDecl
         </div>
       )}
 
-      <div className="flex justify-between">
+      <div className="hidden sm:flex justify-between">
         <Button variant="outline" onClick={onBack}>Back</Button>
         <Button onClick={handleNext} disabled={!allDeclared}>
           {allDeclared ? "Generate Quotation" : "Complete all declarations"}
+        </Button>
+      </div>
+
+      {/* Sticky mobile bottom bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md p-3 flex gap-3 sm:hidden">
+        <Button variant="outline" onClick={onBack} className="flex-1">Back</Button>
+        <Button onClick={handleNext} disabled={!allDeclared} className="flex-1 text-xs">
+          {allDeclared ? "Generate Quotation" : "Complete declarations"}
         </Button>
       </div>
     </div>

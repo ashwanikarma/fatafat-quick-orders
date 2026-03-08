@@ -106,12 +106,20 @@ const SponsorStep = ({ data, onChange, onNext }: SponsorStepProps) => {
           <p className="text-sm text-destructive font-medium">{error}</p>
         )}
 
-        <Button onClick={handleNext} disabled={loading} className="w-full">
+        <Button onClick={handleNext} disabled={loading} className="w-full hidden sm:inline-flex">
           {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
           {loading ? "Validating with Wathaq..." : "Next"}
         </Button>
       </CardContent>
     </Card>
+
+    {/* Sticky mobile bottom bar */}
+    <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md p-3 sm:hidden">
+      <Button onClick={handleNext} disabled={loading} className="w-full">
+        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        {loading ? "Validating with Wathaq..." : "Next"}
+      </Button>
+    </div>
   );
 };
 
