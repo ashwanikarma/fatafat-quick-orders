@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useCallback, useMemo, useRef } from "react";
 import { Navigate, Link, useSearchParams, useNavigate } from "react-router-dom";
 import { ArrowLeft, Loader2, Save, CheckCircle2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -179,7 +179,31 @@ const Quotation = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 lg:px-8 max-w-4xl">
+      <main
+        className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 lg:px-8 max-w-4xl pb-20 sm:pb-8"
+        onTouchStart={(e) => {
+          const touch = e.touches[0];
+          (e.currentTarget as any)._swipeX = touch.clientX;
+          (e.currentTarget as any)._swipeY = touch.clientY;
+        }}
+        onTouchEnd={(e) => {
+          const startX = (e.currentTarget as any)._swipeX;
+          const startY = (e.currentTarget as any)._swipeY;
+          if (startX == null) return;
+          const endX = e.changedTouches[0].clientX;
+          const endY = e.changedTouches[0].clientY;
+          const dx = endX - startX;
+          const dy = Math.abs(endY - startY);
+          // Only trigger on horizontal swipes > 80px and more horizontal than vertical
+          if (Math.abs(dx) > 80 && dy < Math.abs(dx) * 0.6) {
+            if (dx > 0 && step > 0) {
+              goToStep(step - 1);
+            }
+            // Don't auto-advance on swipe left (requires validation)
+          }
+          (e.currentTarget as any)._swipeX = null;
+        }}
+      >
         <StepIndicator currentStep={step} />
 
         {step === 0 && <SponsorStep data={sponsorData} onChange={setSponsorData} onNext={() => goToStep(1)} />}

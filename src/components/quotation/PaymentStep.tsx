@@ -259,14 +259,18 @@ const PaymentStep = ({ members, sponsorData, onBack, onPaymentSuccess }: Payment
         </CardContent>
       </Card>
 
-      <div className="flex flex-col-reverse sm:flex-row justify-between gap-3">
+      <div className="hidden sm:flex justify-between">
         <Button variant="outline" onClick={onBack}>Back</Button>
         <Button onClick={handlePay} disabled={paymentState === "processing"} className="gap-2 min-w-[160px]">
-          {paymentState === "processing" ? (
-            <><Loader2 className="h-4 w-4 animate-spin" />Processing...</>
-          ) : (
-            <>Pay SAR {totalPremium.toLocaleString()}</>
-          )}
+          {paymentState === "processing" ? <><Loader2 className="h-4 w-4 animate-spin" />Processing...</> : <>Pay SAR {totalPremium.toLocaleString()}</>}
+        </Button>
+      </div>
+
+      {/* Sticky mobile bottom bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-md p-3 flex gap-3 sm:hidden">
+        <Button variant="outline" onClick={onBack} className="flex-1">Back</Button>
+        <Button onClick={handlePay} disabled={paymentState === "processing"} className="flex-1 gap-2">
+          {paymentState === "processing" ? <><Loader2 className="h-4 w-4 animate-spin" />Processing...</> : <>Pay SAR {totalPremium.toLocaleString()}</>}
         </Button>
       </div>
     </div>
