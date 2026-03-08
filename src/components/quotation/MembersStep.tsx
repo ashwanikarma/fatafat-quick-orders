@@ -162,12 +162,27 @@ const MembersStep = ({ members, sponsorNumber, onChange, onNext, onBack }: Membe
     e.target.value = "";
   }, [members, sponsorNumber, onChange]);
 
+  const handleDownloadTemplate = () => {
+    const templateData = [
+      { MemberType: "Employee", MemberName: "John Smith", IdentityNumber: "1234567890", DateOfBirth: "1990-01-15", Gender: "Male", MaritalStatus: "Married", Class: "A", SponsorNumber: "" },
+      { MemberType: "Dependent", MemberName: "Jane Smith", IdentityNumber: "9876543210", DateOfBirth: "1992-05-20", Gender: "Female", MaritalStatus: "Married", Class: "A", SponsorNumber: "1234567890" },
+    ];
+    const ws = XLSX.utils.json_to_sheet(templateData);
+    ws["!cols"] = [{ wch: 12 }, { wch: 18 }, { wch: 16 }, { wch: 14 }, { wch: 8 }, { wch: 14 }, { wch: 6 }, { wch: 16 }];
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Members");
+    XLSX.writeFile(wb, "member_upload_template.xlsx");
+  };
+
   return (
     <div className="space-y-6">
       <Card className="border-border">
         <CardHeader className="flex-row items-center justify-between space-y-0 pb-4">
           <CardTitle className="font-heading text-xl">Members</CardTitle>
           <div className="flex gap-2">
+            <Button variant="ghost" size="sm" onClick={handleDownloadTemplate}>
+              <Download className="mr-1.5 h-4 w-4" /> Template
+            </Button>
             <label htmlFor="excel-upload">
               <Button variant="outline" size="sm" asChild>
                 <span className="cursor-pointer"><Upload className="mr-1.5 h-4 w-4" /> Upload Excel</span>
