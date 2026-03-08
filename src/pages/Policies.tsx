@@ -38,10 +38,20 @@ const Policies = () => {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-section-alt">
-        <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card px-5 py-3 text-sm text-muted-foreground shadow-sm">
-          <Loader2 className="h-4 w-4 animate-spin text-primary" />Loading...
-        </div>
+      <div className="min-h-screen bg-section-alt">
+        <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
+          <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
+            <div className="flex items-center gap-4">
+              <Link to="/dashboard">
+                <Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button>
+              </Link>
+              <h1 className="text-lg font-heading font-bold text-foreground">Issued Policies</h1>
+            </div>
+          </div>
+        </header>
+        <main className="container mx-auto px-4 py-8 lg:px-8 max-w-5xl">
+          <ListPageSkeleton count={3} />
+        </main>
       </div>
     );
   }
