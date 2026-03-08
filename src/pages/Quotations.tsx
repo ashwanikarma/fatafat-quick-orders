@@ -13,6 +13,7 @@ import { useQuotationPersistence, type QuotationRecord } from "@/hooks/useQuotat
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { downloadDocument } from "@/lib/download-document";
+import { ListPageSkeleton } from "@/components/skeletons/PageSkeletons";
 
 const fadeUp = { initial: { opacity: 0, y: 20 }, animate: { opacity: 1, y: 0 } };
 
