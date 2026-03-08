@@ -33,6 +33,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import OtpVerificationForm from "@/components/auth/OtpVerificationForm";
 import { newPasswordSchema, otpSchema, profileSchema } from "@/lib/auth-schemas";
+import { ProfileSkeleton } from "@/components/skeletons/PageSkeletons";
 
 const fadeUp = {
   initial: { opacity: 0, y: 20 },
@@ -90,14 +91,7 @@ const Profile = () => {
   );
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-section-alt">
-        <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card px-5 py-3 text-sm text-muted-foreground shadow-sm">
-          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-          Loading your profile...
-        </div>
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
