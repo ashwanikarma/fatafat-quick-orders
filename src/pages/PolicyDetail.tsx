@@ -323,6 +323,9 @@ const PolicyDetail = () => {
                 <TabsList className="mb-4">
                   <TabsTrigger value="overview">Overview</TabsTrigger>
                   <TabsTrigger value="members">Members ({members.length})</TabsTrigger>
+                  <TabsTrigger value="endorsements" className="gap-1.5">
+                    <History className="h-3.5 w-3.5" /> Endorsements ({endorsementHistory.length})
+                  </TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="overview">
@@ -377,6 +380,63 @@ const PolicyDetail = () => {
                           </tfoot>
                         </table>
                       </div>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+
+                <TabsContent value="endorsements">
+                  <Card className="border-border">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="font-heading text-base flex items-center gap-2">
+                        <History className="h-4 w-4 text-muted-foreground" /> Transaction History
+                      </CardTitle>
+                      <p className="text-sm text-muted-foreground">All endorsements and transactions on this policy.</p>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      {endorsementHistory.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center py-12 text-center">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-muted mb-3">
+                            <History className="h-6 w-6 text-muted-foreground" />
+                          </div>
+                          <p className="text-sm font-semibold text-foreground">No transactions yet</p>
+                          <p className="text-xs text-muted-foreground mt-1">Endorsements will appear here once processed.</p>
+                        </div>
+                      ) : (
+                        <div className="divide-y divide-border">
+                          {endorsementHistory.map((entry) => (
+                            <div key={entry.id} className="flex items-start gap-4 px-6 py-4 hover:bg-muted/30 transition-colors">
+                              <div className={`mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl ${
+                                entry.type === "add_member" ? "bg-primary/10 text-primary" :
+                                entry.type === "delete_member" ? "bg-destructive/10 text-destructive" :
+                                entry.type === "update_member" ? "bg-secondary text-secondary-foreground" :
+                                "bg-primary/10 text-primary"
+                              }`}>
+                                {getEndorsementIcon(entry.type)}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between gap-2 mb-1">
+                                  <p className="text-sm font-semibold text-foreground truncate">{entry.description}</p>
+                                  {getStatusBadge(entry.status)}
+                                </div>
+                                {entry.details && (
+                                  <p className="text-xs text-muted-foreground mb-1.5">{entry.details}</p>
+                                )}
+                                <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                                  <span className="flex items-center gap-1">
+                                    <Calendar className="h-3 w-3" />
+                                    {new Date(entry.date).toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })}
+                                  </span>
+                                  {entry.premiumImpact !== undefined && entry.premiumImpact !== 0 && (
+                                    <span className={`font-semibold ${entry.premiumImpact > 0 ? "text-destructive" : "text-primary"}`}>
+                                      {entry.premiumImpact > 0 ? "+" : ""}SAR {entry.premiumImpact.toLocaleString()}
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </CardContent>
                   </Card>
                 </TabsContent>
