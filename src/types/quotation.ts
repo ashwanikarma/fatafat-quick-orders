@@ -20,7 +20,7 @@ export interface Member {
   maritalStatus: MaritalStatus;
   classSelection: ClassSelection;
   sponsorNumber: string;
-  employeeId?: string; // For dependents, the employee they belong to
+  employeeId?: string;
   healthDeclaration?: "Yes" | "No";
   healthAnswers?: boolean[];
 }
@@ -32,4 +32,58 @@ export interface QuotationSummary {
   memberPremiums: { memberId: string; premium: number }[];
   quotationId: string;
   generatedAt: string;
+}
+
+// KYC Types
+export interface NationalAddress {
+  buildingNumber: string;
+  additionalNumber: string;
+  unitNumber: string;
+  postalCode: string;
+  street: string;
+  district: string;
+  city: string;
+}
+
+export type BusinessType = "LLC" | "Sole Proprietorship" | "Partnership" | "Corporation";
+export type RevenueRange = "< 1 Million" | "1M – 10M" | "10M – 50M" | "50M+";
+export type EmployeeRange = "1–10" | "11–50" | "51–100" | "100+";
+
+export interface BusinessDetails {
+  businessType: BusinessType | "";
+  companyRevenue: RevenueRange | "";
+  numberOfEmployees: EmployeeRange | "";
+  taxRegistrationNumber: string;
+  ibanNumber: string;
+  bankName: string;
+}
+
+export interface BoardMember {
+  id: string;
+  name: string;
+  identityNumber: string;
+  address: string;
+}
+
+export interface Shareholder {
+  id: string;
+  name: string;
+  address: string;
+  contributionPercent: string;
+}
+
+export interface ComplianceData {
+  isPEP: boolean | null;
+  isBoardMember: boolean | null;
+  boardMembers: BoardMember[];
+  hasMajorShareholder: boolean | null;
+  shareholders: Shareholder[];
+  termsAccepted: boolean;
+}
+
+export interface KYCData {
+  nationalAddress: NationalAddress;
+  businessDetails: BusinessDetails;
+  compliance: ComplianceData;
+  completed: boolean;
 }

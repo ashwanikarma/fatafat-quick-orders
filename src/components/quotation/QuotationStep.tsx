@@ -139,7 +139,7 @@ const QuotationStep = ({ members, sponsorData, onBack, onNext }: QuotationStepPr
 
       <div className="flex justify-between">
         <Button variant="outline" onClick={onBack}>Back to Health Declaration</Button>
-        <Button>Confirm &amp; Proceed</Button>
+        <Button onClick={onNext}>Confirm &amp; Proceed</Button>
       </div>
     </div>
   );
