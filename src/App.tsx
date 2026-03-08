@@ -15,6 +15,7 @@ import Dashboard from "./pages/Dashboard";
 import Profile from "./pages/Profile";
 import Quotation from "./pages/Quotation";
 import Policies from "./pages/Policies";
+import PolicyDetail from "./pages/PolicyDetail";
 import Quotations from "./pages/Quotations";
 import Install from "./pages/Install";
 import NotFound from "./pages/NotFound";
