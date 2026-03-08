@@ -12,6 +12,7 @@ interface QuotationStepProps {
   members: Member[];
   sponsorData: SponsorData;
   onBack: () => void;
+  onNext?: () => void;
 }
 
 const QuotationStep = ({ members, sponsorData, onBack }: QuotationStepProps) => {
