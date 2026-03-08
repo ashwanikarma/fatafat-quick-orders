@@ -38,7 +38,7 @@ const StepIndicator = ({ currentStep }: StepIndicatorProps) => {
             {i < steps.length - 1 && (
               <div
                 className={cn(
-                  "h-0.5 w-10 sm:w-16 md:w-24 mx-2 mt-[-1.25rem]",
+                  "h-0.5 w-6 sm:w-16 md:w-24 mx-1 sm:mx-2 mt-[-1.25rem]",
                   i < currentStep ? "bg-primary" : "bg-border"
                 )}
               />
