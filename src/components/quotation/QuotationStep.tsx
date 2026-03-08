@@ -111,6 +111,9 @@ const QuotationStep = ({ members, sponsorData, onBack }: QuotationStepProps) => 
         </CardContent>
       </Card>
 
+      {/* Class Benefits */}
+      <BenefitsByClass members={members} />
+
       {/* Actions */}
       <Card className="border-border">
         <CardContent className="py-5">
