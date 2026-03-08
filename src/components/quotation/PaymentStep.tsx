@@ -19,9 +19,10 @@ interface PaymentStepProps {
   members: Member[];
   sponsorData: SponsorData;
   onBack: () => void;
+  onPaymentSuccess?: (policyNumber: string, totalPremium: number) => void;
 }
 
-const PaymentStep = ({ members, sponsorData, onBack }: PaymentStepProps) => {
+const PaymentStep = ({ members, sponsorData, onBack, onPaymentSuccess }: PaymentStepProps) => {
   const { toast } = useToast();
   const [paymentType, setPaymentType] = useState<PaymentType>("credit");
   const [cardNumber, setCardNumber] = useState("");
@@ -67,6 +68,7 @@ const PaymentStep = ({ members, sponsorData, onBack }: PaymentStepProps) => {
     if (success) {
       setPaymentState("success");
       toast({ title: "Payment Successful", description: `Policy ${policyNumber} has been issued.` });
+      onPaymentSuccess?.(policyNumber, totalPremium);
     } else {
       setPaymentState("failed");
       toast({ title: "Payment Failed", description: "Please try again or use a different card.", variant: "destructive" });

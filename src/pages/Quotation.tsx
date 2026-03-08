@@ -130,7 +130,18 @@ const Quotation = () => {
         {step === 2 && <HealthDeclarationStep members={members} onChange={setMembers} onNext={() => goToStep(3)} onBack={() => goToStep(1)} />}
         {step === 3 && <QuotationStep members={members} sponsorData={sponsorData} onBack={() => goToStep(2)} onNext={() => goToStep(4)} />}
         {step === 4 && <KYCStep kycData={kycData} onChange={setKycData} onNext={() => goToStep(5)} onBack={() => goToStep(3)} />}
-        {step === 5 && <PaymentStep members={members} sponsorData={sponsorData} onBack={() => goToStep(4)} />}
+        {step === 5 && (
+          <PaymentStep
+            members={members}
+            sponsorData={sponsorData}
+            onBack={() => goToStep(4)}
+            onPaymentSuccess={(policyNum, premium) => {
+              if (quotationId) {
+                saveState(quotationId, step, sponsorData, members, kycData, "paid", premium, undefined, policyNum);
+              }
+            }}
+          />
+        )}
       </main>
     </div>
   );
