@@ -309,12 +309,16 @@ const Dashboard = () => {
           <h2 className="mb-4 text-lg font-heading font-bold text-foreground">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
             {[
-              { label: "File a Claim", icon: FileText, desc: "Submit new claim" },
-              { label: "Buy Policy", icon: Shield, desc: "Explore plans" },
-              { label: "Make Payment", icon: CreditCard, desc: "Pay premium" },
-              { label: "Get Support", icon: User, desc: "Talk to advisor" },
+              { label: "File a Claim", icon: FileText, desc: "Submit new claim", href: "" },
+              { label: "Buy New Policy", icon: Shield, desc: "Start quotation", href: "/quotation" },
+              { label: "Make Payment", icon: CreditCard, desc: "Pay premium", href: "" },
+              { label: "Get Support", icon: User, desc: "Talk to advisor", href: "" },
             ].map((action) => (
-              <Card key={action.label} className="group cursor-pointer border-border transition-all hover:border-primary/30 hover:shadow-md">
+              <Card
+                key={action.label}
+                className="group cursor-pointer border-border transition-all hover:border-primary/30 hover:shadow-md"
+                onClick={() => action.href && navigate(action.href)}
+              >
                 <CardContent className="p-5 text-center">
                   <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary/15">
                     <action.icon className="h-6 w-6" />
