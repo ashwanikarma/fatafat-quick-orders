@@ -12,9 +12,10 @@ interface QuotationStepProps {
   members: Member[];
   sponsorData: SponsorData;
   onBack: () => void;
+  onNext?: () => void;
 }
 
-const QuotationStep = ({ members, sponsorData, onBack }: QuotationStepProps) => {
+const QuotationStep = ({ members, sponsorData, onBack, onNext }: QuotationStepProps) => {
   const printRef = useRef<HTMLDivElement>(null);
 
   const premiums = useMemo(() => calculatePremium(members), [members]);
@@ -138,7 +139,7 @@ const QuotationStep = ({ members, sponsorData, onBack }: QuotationStepProps) => 
 
       <div className="flex justify-between">
         <Button variant="outline" onClick={onBack}>Back to Health Declaration</Button>
-        <Button>Confirm &amp; Proceed</Button>
+        <Button onClick={onNext}>Confirm &amp; Proceed</Button>
       </div>
     </div>
   );

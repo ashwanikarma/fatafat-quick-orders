@@ -1,7 +1,7 @@
 import { Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const steps = ["Sponsor", "Members", "Health Declaration", "Quotation"];
+const steps = ["Sponsor", "Members", "Health Declaration", "Quotation", "KYC", "Payment"];
 
 interface StepIndicatorProps {
   currentStep: number;
