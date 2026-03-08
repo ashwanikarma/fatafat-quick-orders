@@ -259,9 +259,9 @@ const PaymentStep = ({ members, sponsorData, onBack, onPaymentSuccess }: Payment
         </CardContent>
       </Card>
 
-      <div className="flex justify-between">
-        <Button variant="outline" onClick={onBack}>Back to KYC</Button>
-        <Button onClick={handlePay} disabled={paymentState === "processing"} className="gap-2 min-w-[180px]">
+      <div className="flex flex-col-reverse sm:flex-row justify-between gap-3">
+        <Button variant="outline" onClick={onBack}>Back</Button>
+        <Button onClick={handlePay} disabled={paymentState === "processing"} className="gap-2 min-w-[160px]">
           {paymentState === "processing" ? (
             <><Loader2 className="h-4 w-4 animate-spin" />Processing...</>
           ) : (

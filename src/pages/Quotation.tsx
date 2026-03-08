@@ -157,13 +157,13 @@ const Quotation = () => {
     <div className="min-h-screen bg-section-alt">
       <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
         <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4 min-w-0">
             <Link to="/dashboard">
-              <Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button>
+              <Button variant="ghost" size="icon" className="shrink-0"><ArrowLeft className="h-5 w-5" /></Button>
             </Link>
-            <div>
-              <h1 className="text-lg font-heading font-bold text-foreground">New Policy Quotation</h1>
-              <p className="text-xs text-muted-foreground">Health Insurance — Quotation Module</p>
+            <div className="min-w-0">
+              <h1 className="text-base sm:text-lg font-heading font-bold text-foreground truncate">New Policy Quotation</h1>
+              <p className="text-xs text-muted-foreground hidden sm:block">Health Insurance — Quotation Module</p>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -179,7 +179,7 @@ const Quotation = () => {
         </div>
       </header>
 
-      <main className="container mx-auto px-4 py-8 lg:px-8 max-w-4xl">
+      <main className="container mx-auto px-3 sm:px-4 py-4 sm:py-8 lg:px-8 max-w-4xl">
         <StepIndicator currentStep={step} />
 
         {step === 0 && <SponsorStep data={sponsorData} onChange={setSponsorData} onNext={() => goToStep(1)} />}
