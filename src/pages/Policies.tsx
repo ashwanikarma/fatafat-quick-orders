@@ -96,7 +96,7 @@ const Policies = () => {
                 <motion.div key={p.id} {...fadeUp} transition={{ duration: 0.3, delay: i * 0.05 }}>
                   <Card
                     className="border-border hover:shadow-md transition-all cursor-pointer"
-                    onClick={() => navigate(`/quotation?id=${p.id}`)}
+                    onClick={() => navigate(`/policy?id=${p.id}`)}
                   >
                     <CardContent className="p-6">
                       <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
