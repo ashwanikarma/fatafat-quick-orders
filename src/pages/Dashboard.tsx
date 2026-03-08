@@ -380,8 +380,14 @@ const Dashboard = () => {
           <motion.div {...fadeUp} transition={{ duration: 0.4, delay: 0.38 }}>
             <div className="mb-4 flex items-center justify-between">
               <h2 className="text-lg font-heading font-bold text-foreground">Your Quotations</h2>
-              <Button variant="ghost" size="sm" className="gap-1 text-primary" onClick={() => navigate("/quotation")}>
-                <Plus className="h-4 w-4" /> New Quotation
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" className="gap-1 text-primary" onClick={() => navigate("/quotations")}>
+                  View All <ChevronRight className="h-4 w-4" />
+                </Button>
+                <Button variant="ghost" size="sm" className="gap-1 text-primary" onClick={() => navigate("/quotation")}>
+                  <Plus className="h-4 w-4" /> New
+                </Button>
+              </div>
               </Button>
             </div>
             <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
