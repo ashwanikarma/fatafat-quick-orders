@@ -244,7 +244,7 @@ const BenefitsByClass = ({ members }: { members: Member[] }) => {
                       </div>
                     </div>
                   </div>
-                  <div className="grid grid-cols-3 gap-3 text-sm">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
                     <div className="rounded-lg bg-card border border-border p-3">
                       <p className="text-xs text-muted-foreground mb-1">Maternity</p>
                       <p className="font-medium text-foreground">{b.maternity}</p>
