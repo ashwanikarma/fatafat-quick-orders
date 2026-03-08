@@ -18,13 +18,13 @@ const StepIndicator = ({ currentStep }: StepIndicatorProps) => {
             <div className="flex flex-col items-center gap-1.5">
               <div
                 className={cn(
-                  "flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold transition-colors",
+                  "flex h-7 w-7 sm:h-9 sm:w-9 items-center justify-center rounded-full text-xs sm:text-sm font-bold transition-colors",
                   isCompleted && "bg-primary text-primary-foreground",
-                  isCurrent && "bg-primary text-primary-foreground ring-4 ring-primary/20",
+                  isCurrent && "bg-primary text-primary-foreground ring-2 sm:ring-4 ring-primary/20",
                   !isCompleted && !isCurrent && "bg-muted text-muted-foreground"
                 )}
               >
-                {isCompleted ? <Check className="h-4 w-4" /> : i + 1}
+                {isCompleted ? <Check className="h-3 w-3 sm:h-4 sm:w-4" /> : i + 1}
               </div>
               <span
                 className={cn(
