@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
-import { Navigate, Link, useSearchParams } from "react-router-dom";
-import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { Navigate, Link, useSearchParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, Loader2, Save, CheckCircle2, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/contexts/AuthContext";
 import { useQuotationPersistence } from "@/hooks/useQuotationPersistence";
 import StepIndicator from "@/components/quotation/StepIndicator";
@@ -35,6 +36,9 @@ const Quotation = () => {
   const { quotationId, isSaving, createDraft, saveState, debouncedSave, loadQuotation, setQuotationId } =
     useQuotationPersistence(user?.id);
 
+  const [isPaidPolicy, setIsPaidPolicy] = useState(false);
+  const [policyNumber, setPolicyNumber] = useState<string | null>(null);
+
   // Initialize: load existing or create new draft
   useEffect(() => {
     if (!user || isInitialized) return;
@@ -42,6 +46,17 @@ const Quotation = () => {
       if (resumeId) {
         const loaded = await loadQuotation(resumeId);
         if (loaded) {
+          // If already paid, mark as read-only
+          if (loaded.status === "paid" || loaded.status === "completed") {
+            setIsPaidPolicy(true);
+            setPolicyNumber(loaded.policyNumber || null);
+            setSponsorData(loaded.sponsorData);
+            setMembers(loaded.members);
+            setKycData(loaded.kycData);
+            setStep(loaded.currentStep);
+            setIsInitialized(true);
+            return;
+          }
           setStep(loaded.currentStep);
           setSponsorData(loaded.sponsorData);
           setMembers(loaded.members);
@@ -92,6 +107,48 @@ const Quotation = () => {
         <div className="inline-flex items-center gap-3 rounded-full border border-border bg-card px-5 py-3 text-sm text-muted-foreground shadow-sm">
           <Loader2 className="h-4 w-4 animate-spin text-primary" />Loading quotation...
         </div>
+      </div>
+    );
+  }
+
+  if (isPaidPolicy) {
+    return (
+      <div className="min-h-screen bg-section-alt">
+        <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur-md">
+          <div className="container mx-auto flex h-16 items-center justify-between px-4 lg:px-8">
+            <div className="flex items-center gap-4">
+              <Link to="/dashboard">
+                <Button variant="ghost" size="icon"><ArrowLeft className="h-5 w-5" /></Button>
+              </Link>
+              <div>
+                <h1 className="text-lg font-heading font-bold text-foreground">Policy Details</h1>
+                <p className="text-xs text-muted-foreground">This quotation has been completed and paid.</p>
+              </div>
+            </div>
+          </div>
+        </header>
+        <main className="container mx-auto px-4 py-8 lg:px-8 max-w-2xl">
+          <Card className="border-primary/20">
+            <CardContent className="p-8 text-center space-y-4">
+              <CheckCircle2 className="h-16 w-16 text-primary mx-auto" />
+              <h2 className="text-2xl font-heading font-bold text-foreground">Policy Issued</h2>
+              <p className="text-muted-foreground">This quotation has already been paid and a policy has been issued. No further changes can be made.</p>
+              {policyNumber && (
+                <Badge variant="outline" className="text-lg px-4 py-2 border-primary/30 text-primary">
+                  <FileText className="h-4 w-4 mr-2" /> Policy: {policyNumber}
+                </Badge>
+              )}
+              <div className="text-sm text-muted-foreground space-y-1 pt-4">
+                <p><strong>Sponsor:</strong> {sponsorData.sponsorName || sponsorData.sponsorNumber || "N/A"}</p>
+                <p><strong>Members:</strong> {members.length}</p>
+              </div>
+              <div className="flex gap-3 justify-center pt-4">
+                <Link to="/dashboard"><Button variant="outline">Back to Dashboard</Button></Link>
+                <Link to="/policies"><Button>View All Policies</Button></Link>
+              </div>
+            </CardContent>
+          </Card>
+        </main>
       </div>
     );
   }
