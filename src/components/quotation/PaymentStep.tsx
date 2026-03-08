@@ -22,7 +22,7 @@ interface PaymentStepProps {
   onPaymentSuccess?: (policyNumber: string, totalPremium: number) => void;
 }
 
-const PaymentStep = ({ members, sponsorData, onBack }: PaymentStepProps) => {
+const PaymentStep = ({ members, sponsorData, onBack, onPaymentSuccess }: PaymentStepProps) => {
   const { toast } = useToast();
   const [paymentType, setPaymentType] = useState<PaymentType>("credit");
   const [cardNumber, setCardNumber] = useState("");
