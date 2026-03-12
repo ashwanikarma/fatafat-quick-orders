@@ -8,7 +8,36 @@ namespace InsuranceApi.BAL
     public class QuotationService
     {
         // ═══════════════════════════════════════════════════════
-        // SPONSOR VALIDATION
+        //  DASHBOARD SUMMARY
+        // ═══════════════════════════════════════════════════════
+
+        public async Task<mdlDashboardSummaryRes> GetDashboardSummary(int userId)
+        {
+            using var connection = new SqlConnection(clsMain.ConString());
+            var summary = await connection.QueryFirstOrDefaultAsync<mdlDashboardSummaryRes>(
+                "SPME_GetDashboardSummary",
+                new { UserId = userId },
+                commandType: CommandType.StoredProcedure);
+
+            if (summary == null) return new mdlDashboardSummaryRes();
+
+            // Recent quotations (top 5)
+            summary.RecentQuotations = (await connection.QueryAsync<mdlQuotationListRes>(
+                "SPME_GetUserQuotations",
+                new { UserId = userId, Top = 5 },
+                commandType: CommandType.StoredProcedure)).ToList();
+
+            // Recent policies (top 5)
+            summary.RecentPolicies = (await connection.QueryAsync<mdlPolicyListRes>(
+                "SPME_GetUserPolicies",
+                new { UserId = userId, Top = 5 },
+                commandType: CommandType.StoredProcedure)).ToList();
+
+            return summary;
+        }
+
+        // ═══════════════════════════════════════════════════════
+        //  SPONSOR VALIDATION
         // ═══════════════════════════════════════════════════════
 
         public async Task<mdlSponsorValidateRes> ValidateSponsor(mdlSponsorValidateReq request)
@@ -27,7 +56,7 @@ namespace InsuranceApi.BAL
         }
 
         // ═══════════════════════════════════════════════════════
-        // QUOTATION CRUD
+        //  QUOTATION CRUD
         // ═══════════════════════════════════════════════════════
 
         public async Task<int> CreateQuotation(mdlQuotationCreateReq request)
@@ -51,7 +80,7 @@ namespace InsuranceApi.BAL
         {
             using var connection = new SqlConnection(clsMain.ConString());
 
-            // Get quotation header + sponsor data
+            // Get quotation header
             var quotation = await connection.QueryFirstOrDefaultAsync<mdlQuotationRes>(
                 "SPME_GetQuotation",
                 new { QuotationId = quotationId, UserId = userId },
@@ -77,6 +106,24 @@ namespace InsuranceApi.BAL
                 new { QuotationId = quotationId },
                 commandType: CommandType.StoredProcedure);
 
+            // Get payment info (if paid)
+            if (quotation.Status == "paid")
+            {
+                quotation.Payment = await connection.QueryFirstOrDefaultAsync<mdlPaymentRes>(
+                    "SPME_GetQuotationPayment",
+                    new { QuotationId = quotationId },
+                    commandType: CommandType.StoredProcedure);
+            }
+
+            // Get endorsement history (if policy exists)
+            if (!string.IsNullOrEmpty(quotation.PolicyNumber))
+            {
+                quotation.EndorsementHistory = (await connection.QueryAsync<mdlEndorsementHistoryRes>(
+                    "SPME_GetPolicyEndorsementHistory",
+                    new { PolicyId = quotationId },
+                    commandType: CommandType.StoredProcedure)).ToList();
+            }
+
             return quotation;
         }
 
@@ -90,14 +137,32 @@ namespace InsuranceApi.BAL
             return result.ToList();
         }
 
-        public async Task<List<mdlQuotationListRes>> GetUserPolicies(int userId)
+        public async Task<List<mdlPolicyListRes>> GetUserPolicies(int userId)
         {
             using var connection = new SqlConnection(clsMain.ConString());
-            var result = await connection.QueryAsync<mdlQuotationListRes>(
+            var policies = (await connection.QueryAsync<mdlPolicyListRes>(
                 "SPME_GetUserPolicies",
                 new { UserId = userId },
-                commandType: CommandType.StoredProcedure);
-            return result.ToList();
+                commandType: CommandType.StoredProcedure)).ToList();
+
+            // Load top 5 members for each policy (for preview)
+            foreach (var policy in policies)
+            {
+                policy.TopMembers = (await connection.QueryAsync<mdlMemberSummaryRes>(
+                    "SPME_GetPolicyTopMembers",
+                    new { QuotationId = policy.QuotationId, Top = 5 },
+                    commandType: CommandType.StoredProcedure)).ToList();
+            }
+
+            return policies;
+        }
+
+        public async Task<mdlQuotationRes?> GetPolicyDetail(int policyId, int userId)
+        {
+            // Reuses GetQuotation but validates it's a paid policy
+            var quotation = await GetQuotation(policyId, userId);
+            if (quotation == null || quotation.Status != "paid") return null;
+            return quotation;
         }
 
         public async Task<bool> UpdateStep(int quotationId, int userId, int step)
@@ -110,8 +175,18 @@ namespace InsuranceApi.BAL
             return rows > 0;
         }
 
+        public async Task<bool> UpdateStatus(int quotationId, int userId, string status)
+        {
+            using var connection = new SqlConnection(clsMain.ConString());
+            var rows = await connection.ExecuteAsync(
+                "SPME_UpdateQuotationStatus",
+                new { QuotationId = quotationId, UserId = userId, Status = status },
+                commandType: CommandType.StoredProcedure);
+            return rows > 0;
+        }
+
         // ═══════════════════════════════════════════════════════
-        // MEMBERS
+        //  MEMBERS
         // ═══════════════════════════════════════════════════════
 
         public async Task<int> AddMember(int quotationId, mdlMemberReq request)
@@ -209,8 +284,18 @@ namespace InsuranceApi.BAL
             }
         }
 
+        public async Task<List<mdlMemberRes>> GetMembers(int quotationId)
+        {
+            using var connection = new SqlConnection(clsMain.ConString());
+            var result = await connection.QueryAsync<mdlMemberRes>(
+                "SPME_GetQuotationMembers",
+                new { QuotationId = quotationId },
+                commandType: CommandType.StoredProcedure);
+            return result.ToList();
+        }
+
         // ═══════════════════════════════════════════════════════
-        // HEALTH DECLARATION
+        //  HEALTH DECLARATION
         // ═══════════════════════════════════════════════════════
 
         public async Task<bool> SaveHealthDeclaration(mdlHealthDeclarationReq request)
@@ -221,6 +306,7 @@ namespace InsuranceApi.BAL
                 new
                 {
                     request.MemberId,
+                    request.QuotationId,
                     request.HealthDeclaration,
                     request.HealthAnswersJson,
                     request.HeightCm,
@@ -248,6 +334,7 @@ namespace InsuranceApi.BAL
                         new
                         {
                             decl.MemberId,
+                            decl.QuotationId,
                             decl.HealthDeclaration,
                             decl.HealthAnswersJson,
                             decl.HeightCm,
@@ -271,14 +358,13 @@ namespace InsuranceApi.BAL
         }
 
         // ═══════════════════════════════════════════════════════
-        // PREMIUM CALCULATION
+        //  PREMIUM CALCULATION
         // ═══════════════════════════════════════════════════════
 
         public async Task<mdlPremiumCalcRes> CalculatePremium(int quotationId)
         {
             using var connection = new SqlConnection(clsMain.ConString());
 
-            // SP calculates premiums per member and returns total + breakdown
             var members = await connection.QueryAsync<mdlMemberPremium>(
                 "SPME_CalculateQuotationPremium",
                 new { QuotationId = quotationId },
@@ -294,7 +380,7 @@ namespace InsuranceApi.BAL
         }
 
         // ═══════════════════════════════════════════════════════
-        // KYC
+        //  KYC
         // ═══════════════════════════════════════════════════════
 
         public async Task<bool> SaveKyc(mdlKycReq request)
@@ -329,28 +415,84 @@ namespace InsuranceApi.BAL
             return rows > 0;
         }
 
-        // ═══════════════════════════════════════════════════════
-        // PAYMENT
-        // ═══════════════════════════════════════════════════════
-
-        public async Task<bool> ProcessPayment(mdlPaymentReq request)
+        public async Task<mdlKycDataRes?> GetKyc(int quotationId)
         {
             using var connection = new SqlConnection(clsMain.ConString());
-            var rows = await connection.ExecuteAsync(
+            return await connection.QueryFirstOrDefaultAsync<mdlKycDataRes>(
+                "SPME_GetQuotationKyc",
+                new { QuotationId = quotationId },
+                commandType: CommandType.StoredProcedure);
+        }
+
+        // ═══════════════════════════════════════════════════════
+        //  PAYMENT
+        // ═══════════════════════════════════════════════════════
+
+        public async Task<mdlPaymentRes?> ProcessPayment(mdlPaymentReq request)
+        {
+            using var connection = new SqlConnection(clsMain.ConString());
+            var result = await connection.QueryFirstOrDefaultAsync<mdlPaymentRes>(
                 "SPME_ProcessQuotationPayment",
                 new
                 {
                     request.QuotationId,
                     request.PaymentMethod,
+                    request.CardholderName,
                     request.TransactionRef,
                     request.Amount
                 },
                 commandType: CommandType.StoredProcedure);
-            return rows > 0;
+            return result;
         }
 
         // ═══════════════════════════════════════════════════════
-        // DOCUMENT DOWNLOAD
+        //  ENDORSEMENT HISTORY
+        // ═══════════════════════════════════════════════════════
+
+        public async Task<mdlEndorsementHistoryPageRes> GetEndorsementHistory(mdlEndorsementHistoryFilterReq filter)
+        {
+            using var connection = new SqlConnection(clsMain.ConString());
+
+            // Get total count
+            var totalCount = await connection.ExecuteScalarAsync<int>(
+                "SPME_GetPolicyEndorsementHistoryCount",
+                new
+                {
+                    filter.PolicyId,
+                    filter.Type,
+                    filter.Status,
+                    filter.FromDate,
+                    filter.ToDate
+                },
+                commandType: CommandType.StoredProcedure);
+
+            // Get paginated results
+            var items = await connection.QueryAsync<mdlEndorsementHistoryRes>(
+                "SPME_GetPolicyEndorsementHistoryPaged",
+                new
+                {
+                    filter.PolicyId,
+                    filter.Type,
+                    filter.Status,
+                    filter.FromDate,
+                    filter.ToDate,
+                    filter.Page,
+                    filter.PageSize
+                },
+                commandType: CommandType.StoredProcedure);
+
+            return new mdlEndorsementHistoryPageRes
+            {
+                Items = items.ToList(),
+                TotalCount = totalCount,
+                Page = filter.Page,
+                PageSize = filter.PageSize,
+                TotalPages = (int)Math.Ceiling((double)totalCount / filter.PageSize)
+            };
+        }
+
+        // ═══════════════════════════════════════════════════════
+        //  DOCUMENT DOWNLOAD
         // ═══════════════════════════════════════════════════════
 
         public async Task<mdlDocumentRes?> DownloadQuotationDocument(int quotationId, int userId)
@@ -369,6 +511,16 @@ namespace InsuranceApi.BAL
             var result = await connection.QueryFirstOrDefaultAsync<mdlDocumentRes>(
                 "SPME_GetPolicyDocument",
                 new { QuotationId = quotationId, UserId = userId },
+                commandType: CommandType.StoredProcedure);
+            return result;
+        }
+
+        public async Task<mdlDocumentRes?> DownloadEndorsementDocument(int endorsementId, int userId)
+        {
+            using var connection = new SqlConnection(clsMain.ConString());
+            var result = await connection.QueryFirstOrDefaultAsync<mdlDocumentRes>(
+                "SPME_GetEndorsementDocument",
+                new { EndorsementId = endorsementId, UserId = userId },
                 commandType: CommandType.StoredProcedure);
             return result;
         }
