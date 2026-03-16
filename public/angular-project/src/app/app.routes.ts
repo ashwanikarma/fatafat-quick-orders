@@ -5,27 +5,7 @@ export const routes: Routes = [
   // ─── Landing Pages (Public) ──────────────────────────
   {
     path: '',
-    loadComponent: () => import('./features/landing/pages/home/home.component').then(m => m.HomeComponent),
-  },
-  {
-    path: 'food-beverage',
-    loadComponent: () => import('./features/landing/pages/food-beverage/food-beverage.component').then(m => m.FoodBeverageComponent),
-  },
-  {
-    path: 'retail',
-    loadComponent: () => import('./features/landing/pages/retail/retail.component').then(m => m.RetailComponent),
-  },
-  {
-    path: 'services',
-    loadComponent: () => import('./features/landing/pages/services/services.component').then(m => m.ServicesComponent),
-  },
-  {
-    path: 'about',
-    loadComponent: () => import('./features/landing/pages/about/about.component').then(m => m.AboutComponent),
-  },
-  {
-    path: 'contact',
-    loadComponent: () => import('./features/landing/pages/contact/contact.component').then(m => m.ContactComponent),
+    loadComponent: () => import('./features/home/pages/home/home.component').then(m => m.HomeComponent),
   },
 
   // ─── Auth (Guest Only) ──────────────────────────────
@@ -54,12 +34,12 @@ export const routes: Routes = [
   {
     path: 'quotations',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/quotation/pages/quotation-list/quotation-list.component').then(m => m.QuotationListComponent),
+    loadComponent: () => import('./features/quotation-list/pages/quotation-list/quotation-list.component').then(m => m.QuotationListComponent),
   },
   {
     path: 'policies',
     canActivate: [authGuard],
-    loadComponent: () => import('./features/policy/pages/policies/policies.component').then(m => m.PoliciesComponent),
+    loadComponent: () => import('./features/policy-list/pages/policy-list/policy-list.component').then(m => m.PolicyListComponent),
   },
   {
     path: 'policy',
@@ -70,6 +50,6 @@ export const routes: Routes = [
   // ─── Fallback ───────────────────────────────────────
   {
     path: '**',
-    loadComponent: () => import('./features/landing/pages/not-found/not-found.component').then(m => m.NotFoundComponent),
+    loadComponent: () => import('./features/not-found/pages/not-found/not-found.component').then(m => m.NotFoundComponent),
   },
 ];
